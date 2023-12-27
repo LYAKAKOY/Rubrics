@@ -5,18 +5,18 @@ from api.base_schemas import TunedModel
 from pydantic import BaseModel
 
 
-class CreateRubrics(BaseModel):
+class CreateRubric(BaseModel):
     text: str
     rubrics: List[str]
     created_date: datetime.datetime
 
 
-class ShowRubrics(TunedModel):
+class ShowRubric(TunedModel):
     id: int
     text: str
     rubrics: List[str]
     created_date: datetime.datetime
 
 
-class DeleteRubrics(TunedModel):
+class DeleteRubric(TunedModel):
     id: int
