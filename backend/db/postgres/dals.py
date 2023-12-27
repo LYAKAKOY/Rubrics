@@ -6,12 +6,12 @@ from db.postgres.models import Rubric
 from sqlalchemy import Delete
 
 
-class RubricsDAL:
+class RubricDAL:
 
     def __init__(self, db_session: AsyncSession):
         self.db_session = db_session
 
-    async def create_rubrics(self, text: str, rubrics: List[str], created_date: datetime.datetime) -> Rubric | None:
+    async def create_rubric(self, text: str, rubrics: List[str], created_date: datetime.datetime) -> Rubric | None:
         new_rubrics = Rubric(text=text, rubrics=rubrics, created_date=created_date)
         try:
             self.db_session.add(new_rubrics)
@@ -22,7 +22,7 @@ class RubricsDAL:
             await self.db_session.rollback()
             return
 
-    async def delete_rubrics_by_id(self, id: int):
+    async def delete_rubric_by_id(self, id: int):
         query = Delete(Rubric).where(Rubric.id == id).returning(Rubric.id)
         try:
             deleted_id = await self.db_session.execute(query)
@@ -32,7 +32,7 @@ class RubricsDAL:
             await self.db_session.rollback()
             return
 
-    async def get_rubrics_by_id(self, id: int):
+    async def get_rubric_by_id(self, id: int):
         rubrics = await self.db_session.get(Rubric, id)
         if rubrics is not None:
             return rubrics
