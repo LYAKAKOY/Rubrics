@@ -1,0 +1,90 @@
+version: "3.8"
+
+services:
+
+  backend:
+    container_name: backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile_backend
+    volumes:
+      - ./backend:/backend
+    environment:
+      PG_DATABASE: database
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+      POSTGRES_PORT: 5432
+      ES_DATABASE: es
+      ES_PORT: 9200
+    networks:
+      - web_app_network
+    ports:
+      - '127.0.0.1:8000:8000'
+    command: sh -c "alembic upgrade heads && /
+                    python db/elasticsearch/migrations.py && /
+                    uvicorn main:app --reload --host 0.0.0.0 --port 8000"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      database:
+        condition: service_healthy
+
+  database:
+    image: postgres:15-alpine3.18
+    container_name: database
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - data_pg_db:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - '127.0.0.1:5432:5432'
+    networks:
+      - web_app_network
+    restart: always
+
+  elasticsearch:
+    container_name: es
+    image: elasticsearch:8.11.3
+    healthcheck:
+      test: curl -s http://es:9200 > /dev/null || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 50
+    environment:
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+    volumes:
+      - data_es_db:/usr/share/elasticsearch/data
+    networks:
+      - web_app_network
+    ports:
+      - "127.0.0.1:9200:9200"
+
+  kibana:
+    container_name: kibana
+    image: kibana:8.11.3
+    environment:
+      - ELASTICSEARCH_HOSTS=http://es:9200
+    networks:
+      - web_app_network
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    ports:
+      - "5601:5601"
+
+networks:
+  web_app_network:
+    driver: bridge
+
+volumes:
+  data_es_db:
+  data_pg_db:
