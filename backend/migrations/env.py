@@ -23,6 +23,7 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 from db.base import Base
+from db.postgres.models import Rubric
 
 target_metadata = Base.metadata
 
