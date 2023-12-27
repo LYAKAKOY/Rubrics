@@ -21,3 +21,8 @@ RABBIT_URL: str = env.str(
 
 RABBIT_QUEUE_CREATE_TASK: str = env.str("RABBIT_QUEUE_CREATE_TASK", default="tasks_create")
 RABBIT_QUEUE_DELETE_TASK: str = env.str("RABBIT_QUEUE_DELETE_TASK", default="tasks_delete")
+
+SCROLL_TIME: str = env.str(
+    "SCROLL_TIME",
+    default="15m",
+)
