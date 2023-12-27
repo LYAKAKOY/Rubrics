@@ -13,4 +13,7 @@ class Rubric(Base):
     )
     rubrics: Mapped[List[str]] = mapped_column(ARRAY(String))
     text: Mapped[str]
-    created_date: Mapped[datetime.datetime] = mapped_column(DateTime)
+    created_date: Mapped[datetime.datetime] = mapped_column(DateTime(timezone=True))
+
+    def model_to_dict(self):
+        return {"id": self.id, "text": self.text}
