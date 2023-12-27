@@ -15,7 +15,7 @@ AsyncSession = sessionmaker(
 )
 
 
-async def get_db() -> Generator:
+async def get_db_pg() -> Generator:
     db_session = AsyncSession()
     try:
         yield db_session
