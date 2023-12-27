@@ -18,5 +18,5 @@ class ShowRubric(TunedModel):
     created_date: datetime.datetime
 
 
-class DeleteRubric(TunedModel):
+class DeletedRubric(TunedModel):
     id: int
