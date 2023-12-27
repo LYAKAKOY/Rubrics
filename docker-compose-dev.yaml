@@ -22,7 +22,6 @@ services:
     ports:
       - '127.0.0.1:8000:8000'
     command: sh -c "alembic upgrade heads && /
-                    python db/elasticsearch/migrations.py && /
                     uvicorn main:app --reload --host 0.0.0.0 --port 8000"
     depends_on:
       elasticsearch:
