@@ -9,7 +9,7 @@ DEFAULT_SETTINGS_INDEXES = {"number_of_shards": 3, "number_of_replicas": 2}
 
 async def create_index(name_index: str, mappings: dict):
     elastic_client = AsyncElasticsearch(hosts=es_database_url)
-    await elastic_client.indices.create(
+    await elastic_client.options(ignore_status=400).indices.create(
         index=name_index, mappings=mappings, settings=DEFAULT_SETTINGS_INDEXES
     )
     await elastic_client.close()

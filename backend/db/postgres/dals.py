@@ -25,7 +25,7 @@ class RubricDAL:
     async def delete_rubric_by_id(self, id: int):
         query = Delete(Rubric).where(Rubric.id == id).returning(Rubric.id)
         try:
-            deleted_id = await self.db_session.execute(query)
+            deleted_id = await self.db_session.scalar(query)
             await self.db_session.commit()
             return deleted_id
         except IntegrityError:
