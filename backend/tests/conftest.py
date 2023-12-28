@@ -80,6 +80,7 @@ async def create_rubric(asyncpg_pool, rubric_id: int, rubrics: List[str], text: 
             document={"id": rubric_id, "text": text},
             refresh=True,
         )
+        await client_es.close()
         return rubric_id
 
 
