@@ -1,15 +1,16 @@
 import asyncio
 from typing import Any
 from typing import Generator
+
 import pytest
-from elasticsearch import AsyncElasticsearch
-from httpx import AsyncClient
-from sqlalchemy import text
-from sqlalchemy.ext.asyncio import AsyncSession
 import settings
 from db.es.indexes import INDEX_RUBRICS
-from main import app
 from db.pg.session_pg import async_session
+from elasticsearch import AsyncElasticsearch
+from httpx import AsyncClient
+from main import app
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 @pytest.fixture(scope="session")
@@ -54,5 +55,4 @@ async def clean_index(test_async_client_es: AsyncElasticsearch):
 @pytest.fixture(scope="function", autouse=True)
 async def clean_table(test_async_client_pg: AsyncSession):
     async with test_async_client_pg.begin():
-        await test_async_client_pg.execute(
-            text(f"TRUNCATE TABLE rubrics"))
+        await test_async_client_pg.execute(text("TRUNCATE TABLE rubrics"))

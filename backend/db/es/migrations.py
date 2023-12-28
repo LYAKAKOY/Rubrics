@@ -30,5 +30,6 @@ async def migrations():
     for res in results:
         logger.info(res)
 
+
 if __name__ == "__main__":
     asyncio.run(migrations())
