@@ -1,7 +1,6 @@
+from api.rubrics.handlers import rubrics_router
 from fastapi import APIRouter
 from fastapi import FastAPI
-
-from api.rubrics.handlers import rubrics_router
 
 app = FastAPI(description="Rubrics")
 main_api_router = APIRouter()

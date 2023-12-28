@@ -1,23 +1,25 @@
 import datetime
 from typing import List
-import elastic_transport
-from elasticsearch import AsyncElasticsearch
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.ext.asyncio import AsyncSession
 
+import elastic_transport
 import settings
 from db.es.indexes import INDEX_RUBRICS
 from db.pg.models import Rubric
-from sqlalchemy import Delete, Select
+from elasticsearch import AsyncElasticsearch
+from sqlalchemy import Delete
+from sqlalchemy import Select
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class RubricDAL:
-
     def __init__(self, pg_session: AsyncSession, es_session: AsyncElasticsearch):
         self.pg_session = pg_session
         self.es_session = es_session
 
-    async def create_rubric(self, text: str, rubrics: List[str], created_date: datetime.datetime) -> Rubric | None:
+    async def create_rubric(
+        self, text: str, rubrics: List[str], created_date: datetime.datetime
+    ) -> Rubric | None:
         new_rubrics = Rubric(text=text, rubrics=rubrics, created_date=created_date)
         try:
             self.pg_session.add(new_rubrics)
@@ -25,7 +27,7 @@ class RubricDAL:
             res_es = await self.es_session.index(
                 index=INDEX_RUBRICS,
                 document={"id": new_rubrics.id, "text": new_rubrics.text},
-                refresh=True
+                refresh=True,
             )
             if res_es.meta.status != 201:
                 await self.pg_session.rollback()
@@ -69,16 +71,20 @@ class RubricDAL:
         rubrics_ids = []
         scroll_id = res.get("_scroll_id")
         while rubrics_data:
-            rubrics_ids.extend([
-                rubric.get("_source").get("id")
-                for rubric in rubrics_data
-            ])
+            rubrics_ids.extend(
+                [rubric.get("_source").get("id") for rubric in rubrics_data]
+            )
             res = await self.es_session.options(ignore_status=400).scroll(
                 scroll_id=scroll_id, scroll=settings.SCROLL_TIME
             )
             rubrics_data = res.get("hits").get("hits")
 
         if rubrics_ids:
-            query = Select(Rubric).where(Rubric.id.in_(rubrics_ids)).order_by(Rubric.created_date).limit(20)
+            query = (
+                Select(Rubric)
+                .where(Rubric.id.in_(rubrics_ids))
+                .order_by(Rubric.created_date)
+                .limit(20)
+            )
             rubrics = await self.pg_session.scalars(query)
             return rubrics

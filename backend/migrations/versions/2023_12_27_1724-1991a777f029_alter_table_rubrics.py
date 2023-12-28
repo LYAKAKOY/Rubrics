@@ -1,18 +1,19 @@
 """alter table rubrics
 
 Revision ID: 1991a777f029
-Revises: 
+Revises:
 Create Date: 2023-12-27 17:24:30.549531
 
 """
-from typing import Sequence, Union
+from typing import Sequence
+from typing import Union
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 
 # revision identifiers, used by Alembic.
-revision: str = '1991a777f029'
+revision: str = "1991a777f029"
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
