@@ -17,45 +17,18 @@ services:
       POSTGRES_PORT: 5432
       ES_DATABASE: es
       ES_PORT: 9200
-      RABBITMQ: rabbitmq
-      RABBIT_PORT: 5672
-      RABBIT_USER: guest
-      RABBIT_PASSWORD: guest
     networks:
       - web_app_network
     ports:
       - '127.0.0.1:8000:8000'
     command: sh -c "alembic upgrade heads && 
-                    python db/elasticsearch/migrations.py &&
+                    python db/es/migrations.py &&
                     uvicorn main:app --reload --host 0.0.0.0 --port 8000"
     depends_on:
       elasticsearch:
         condition: service_healthy
       database:
         condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-
-  worker:
-    container_name: worker_rabbit
-    build:
-      context: ./backend
-      dockerfile: Dockerfile_backend
-    volumes:
-      - ./backend:/backend
-    environment:
-      ES_DATABASE: es
-      ES_PORT: 9200
-      RABBITMQ: rabbitmq
-      RABBIT_PORT: 5672
-      RABBIT_USER: guest
-      RABBIT_PASSWORD: guest
-    command: sh -c "python worker.py"
-    networks:
-      - web_app_network
-    depends_on:
-      - backend
-
 
   database:
     image: postgres:15-alpine3.18
@@ -89,30 +62,12 @@ services:
       - xpack.security.enabled=false
       - discovery.type=single-node
     volumes:
-      - data_es_db:/usr/share/elasticsearch/data
+      - data_es_db:/usr/share/es/data
     networks:
       - web_app_network
     ports:
       - "127.0.0.1:9200:9200"
     restart: always
-
-  rabbitmq:
-    container_name: rabbitmq
-    image: rabbitmq:3.12.10-management-alpine
-    healthcheck:
-      test: rabbitmq-diagnostics -q ping
-      interval: 30s
-      timeout: 30s
-      retries: 3
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq/mnesia/
-    networks:
-      - web_app_network
-    ports:
-      - "15672:15672"
-      - "5672:5672"
-    restart: always
-
 
   kibana:
     container_name: kibana
@@ -126,6 +81,7 @@ services:
         condition: service_healthy
     ports:
       - "5601:5601"
+    restart: always
 
 networks:
   web_app_network:
@@ -134,4 +90,3 @@ networks:
 volumes:
   data_es_db:
   data_pg_db:
-  rabbitmq_data:
