@@ -31,7 +31,7 @@ async def create_rubric(
     return res
 
 
-@rubrics_router.get("/", response_model=List[ShowRubric])
+@rubrics_router.get("/{text}", response_model=List[ShowRubric])
 async def get_rubrics_by_text(
         text: str,
         pg_session: AsyncSession = Depends(get_db_pg),
@@ -46,7 +46,7 @@ async def get_rubrics_by_text(
     return res
 
 
-@rubrics_router.delete("/", response_model=DeletedRubric)
+@rubrics_router.delete("/{id}", response_model=DeletedRubric)
 async def delete_rubric_by_id(
         id: int,
         pg_session: AsyncSession = Depends(get_db_pg),
