@@ -61,7 +61,7 @@ async def test_get_20_rubrics_handler(
         f"/rubrics/{text}",
     )
     data_from_response = response.json()
-    assert len(data_from_response) <= 1
+    assert len(data_from_response) <= 20
     for data_res, rubric in zip(data_from_response, all_rubrics[:expected_count]):
         assert data_res.get("text") == rubric.get("text")
         assert data_res.get("rubrics") == rubric.get("rubrics")
