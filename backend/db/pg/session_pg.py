@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.orm import sessionmaker
 
-engine = create_async_engine(settings.PG_DATABASE_URL, echo=False)
+engine = create_async_engine(settings.PG_DATABASE_URL, future=True, echo=False)
 
 async_session = sessionmaker(
     engine,
