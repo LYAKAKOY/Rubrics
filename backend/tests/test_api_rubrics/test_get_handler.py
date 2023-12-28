@@ -1,9 +1,7 @@
-import json
 from copy import deepcopy
 from datetime import datetime
 
 import pytest
-
 from tests.conftest import create_rubric
 
 
@@ -58,13 +56,22 @@ async def test_get_20_rubrics_handler(
     date_format = "%Y-%m-%dT%H:%M:%SZ"
     for minute in range(10, count + 10):
         rubric_data["created_date"] = f"2023-12-26T09:{minute}:00Z"
-        await create_rubric(asyncpg_pool=asyncpg_pool, rubric_id=minute, rubrics=rubric_data['rubrics'], text=rubric_data['text'],
-                            created_date=datetime.strptime(rubric_data["created_date"], date_format))
+        await create_rubric(
+            asyncpg_pool=asyncpg_pool,
+            rubric_id=minute,
+            rubrics=rubric_data["rubrics"],
+            text=rubric_data["text"],
+            created_date=datetime.strptime(rubric_data["created_date"], date_format),
+        )
         all_rubrics.append(deepcopy(rubric_data))
     for i in range(9):
-        await create_rubric(asyncpg_pool=asyncpg_pool, rubric_id=i, rubrics=['vk/6, vk/8'],
-                            text="Раздача призов",
-                            created_date=datetime.strptime(f"200{i}-12-26T09:50:00Z", date_format))
+        await create_rubric(
+            asyncpg_pool=asyncpg_pool,
+            rubric_id=i,
+            rubrics=["vk/6, vk/8"],
+            text="Раздача призов",
+            created_date=datetime.strptime(f"200{i}-12-26T09:50:00Z", date_format),
+        )
     response = await client.get(
         f"/rubrics/{text}",
     )

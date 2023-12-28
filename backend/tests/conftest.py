@@ -1,19 +1,21 @@
 import asyncio
 import datetime
-from typing import List, Any, Generator
+from typing import Any
+from typing import Generator
+from typing import List
 
 import asyncpg
-from elasticsearch import AsyncElasticsearch
-from httpx import AsyncClient
-from sqlalchemy import text
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker
-
+import pytest
 import settings
 from db.es.indexes import INDEX_RUBRICS
 from db.pg.session_pg import get_db_pg
+from elasticsearch import AsyncElasticsearch
+from httpx import AsyncClient
 from main import app
-import pytest
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.orm import sessionmaker
 
 
 @pytest.fixture(scope="session")
@@ -27,15 +29,21 @@ def event_loop():
 @pytest.fixture(scope="session")
 async def async_session_test():
     engine = create_async_engine(settings.PG_DATABASE_URL, future=True, echo=True)
-    async_session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession,
-                                 autocommit=False,
-                                 autoflush=False, )
+    async_session = sessionmaker(
+        engine,
+        expire_on_commit=False,
+        class_=AsyncSession,
+        autocommit=False,
+        autoflush=False,
+    )
     yield async_session
 
 
 @pytest.fixture(scope="session")
 async def asyncpg_pool():
-    pool = await asyncpg.create_pool("".join(settings.PG_DATABASE_URL.split("+asyncpg")))
+    pool = await asyncpg.create_pool(
+        "".join(settings.PG_DATABASE_URL.split("+asyncpg"))
+    )
     yield pool
     await pool.close()
 
@@ -53,9 +61,7 @@ async def test_async_client_es() -> AsyncElasticsearch:
 async def clean_tables_pg(async_session_test):
     async with async_session_test() as session:
         async with session.begin():
-            await session.execute(
-                text(f"TRUNCATE TABLE rubrics")
-            )
+            await session.execute(text("TRUNCATE TABLE rubrics"))
 
 
 @pytest.fixture(scope="function", autouse=True)
@@ -65,7 +71,13 @@ async def clean_index(test_async_client_es: AsyncElasticsearch):
     )
 
 
-async def create_rubric(asyncpg_pool, rubric_id: int, rubrics: List[str], text: str, created_date: datetime.datetime) -> int:
+async def create_rubric(
+    asyncpg_pool,
+    rubric_id: int,
+    rubrics: List[str],
+    text: str,
+    created_date: datetime.datetime,
+) -> int:
     async with asyncpg_pool.acquire() as connection:
         await connection.execute(
             """INSERT INTO rubrics (id, rubrics, text, created_date) VALUES ($1, $2, $3, $4)""",
@@ -85,9 +97,7 @@ async def create_rubric(asyncpg_pool, rubric_id: int, rubrics: List[str], text: 
 
 
 async def _get_test_db_pg():
-    test_engine = create_async_engine(
-        settings.PG_DATABASE_URL, future=True, echo=True
-    )
+    test_engine = create_async_engine(settings.PG_DATABASE_URL, future=True, echo=True)
 
     test_async_session = sessionmaker(
         test_engine, expire_on_commit=False, class_=AsyncSession
