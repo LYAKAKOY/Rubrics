@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker
 
 engine = create_async_engine(settings.PG_DATABASE_URL, echo=False)
 
-AsyncSession = sessionmaker(
+async_session = sessionmaker(
     engine,
     class_=AsyncSession,
     expire_on_commit=False,
@@ -16,7 +16,7 @@ AsyncSession = sessionmaker(
 
 
 async def get_db_pg() -> Generator:
-    db_session = AsyncSession()
+    db_session = async_session()
     try:
         yield db_session
     finally:

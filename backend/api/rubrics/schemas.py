@@ -7,8 +7,8 @@ from pydantic import BaseModel
 
 class CreateRubric(BaseModel):
     text: str
-    rubrics: List[str]
-    created_date: datetime.datetime
+    rubrics: List[str] = []
+    created_date: datetime.datetime = datetime.datetime.utcnow()
 
 
 class ShowRubric(TunedModel):
