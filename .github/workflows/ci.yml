@@ -18,5 +18,7 @@ jobs:
             flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
         - name: Set up Docker Buildx
           uses: docker/setup-buildx-action@v3
-        - name: Docker compose up and Running test
+        - name: Docker compose up
           run: docker compose -f docker-compose-tests.yaml up -d
+        - name: Running test
+          run: docker compose -f docker-compose-tests.yaml run --rm backend_test sh -c 'pytest'
