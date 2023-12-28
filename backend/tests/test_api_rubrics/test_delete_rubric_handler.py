@@ -1,49 +1,51 @@
+import datetime
 import json
 
 import pytest
 
+from tests.conftest import create_rubric
+
 
 @pytest.mark.parametrize(
-    "rubric_date, expected_status_code",
+    "rubric_data, expected_status_code",
     [
         (
-            {
-                "text": "Розыгрыш на кепки!",
-                "rubrics": ["vk.com/1", "vk.com/2", "vk.com/3"],
-                "created_date": "2019-12-26T09:27:00",
-            },
-            200,
+                {
+                    "text": "Розыгрыш на кепки!",
+                    "rubrics": ["vk.com/1", "vk.com/2", "vk.com/3"],
+                },
+                200,
         ),
         (
-            {
-                "text": "Розыгрыш на худи!",
-                "rubrics": ["vk.com/1", "vk.com/2", "vk.com/3"],
-                "created_date": "2019-12-26T09:27:00",
-            },
-            200,
+                {
+                    "text": "Розыгрыш на худи!",
+                    "rubrics": ["vk.com/1", "vk.com/2", "vk.com/3"],
+                },
+                200,
         ),
     ],
 )
 async def test_delete_rubric_handler(
-    client,
-    rubric_date,
-    expected_status_code,
+        client,
+        asyncpg_pool,
+        test_async_client_es,
+        rubric_data,
+        expected_status_code,
 ):
-    res = await client.post(
-        "/rubrics/",
-        content=json.dumps(rubric_date),
-    )
-    created_rubric = res.json()
+    rubric_id = await create_rubric(asyncpg_pool=asyncpg_pool, rubric_id=10001,
+                                    rubrics=rubric_data['rubrics'], text=rubric_data['text'],
+                                    created_date=datetime.datetime.utcnow())
+
     response = await client.delete(
-        f"/rubrics/{created_rubric.get('id')}",
+        f"/rubrics/{rubric_id}",
     )
     data_from_response = response.json()
     assert response.status_code == expected_status_code
-    assert data_from_response.get("id") == created_rubric.get("id")
+    assert data_from_response.get("id") == rubric_id
 
 
 async def test_delete_rubric_handler_not_found(
-    client,
+        client,
 ):
     response = await client.delete(
         "/rubrics/1242352",
