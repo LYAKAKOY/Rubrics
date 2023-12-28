@@ -58,6 +58,15 @@ Execute the test suite using the command below.
 
 ---
 
+
+### 🚩 Stop *RubricsApi*
+
+```bash
+docker compose -f docker-compose-dev.yaml down --remove-orphans
+```
+
+---
+
 ## 📄 License
 
 [MIT](https://github.com/eli64s/readme-ai/blob/main/LICENSE)
